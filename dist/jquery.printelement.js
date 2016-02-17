@@ -1,19 +1,12 @@
-/*! jQuery printElement - v2.0.1 - 2014-08-22
+/*! jQuery printElement - v2.0.1 - 2016-02-17
 * https://github.com/erikzaadi/jQuery.printElement
-* Copyright (c) 2014 erikzaadi; Licensed MIT, GPL */
+* Copyright (c) 2016 erikzaadi; Licensed MIT, GPL */
 /*global window,focus,setTimeout,navigator*/
 (function (window, undefined) {
     var document = window.document;
     var $ = window.jQuery;
     $.fn.printElement = function (options) {
         var mainOptions = $.extend({}, $.fn.printElement.defaults, options);
-        //iframe mode is not supported for opera and chrome 3.0 (it prints the entire page).
-        //http://www.google.com/support/forum/p/Webmasters/thread?tid=2cb0f08dce8821c3&hl=en
-        if (mainOptions.printMode === 'iframe') {
-            if (/chrome/.test(navigator.userAgent.toLowerCase())) {
-                mainOptions.printMode = 'popup';
-            }
-        }
         //Remove previously printed iframe if exists
         $("[id^='printElement_']").remove();
 
