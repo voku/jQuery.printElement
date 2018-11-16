@@ -15,11 +15,12 @@ module.exports = function(grunt) {
     concat: {
       options: {
         banner: '<%= meta.banner %>',
+        separator: ';',
         stripBanners: true
       },
       dist: {
-        src: ['src/<%= pkg.name %>.js'],
-        dest: 'dist/<%= pkg.name %>.js'
+        src: ['src/jquery.printelement.js'],
+        dest: 'dist/jquery.printelement.js'
       }
     },
     qunit: {
@@ -60,7 +61,7 @@ module.exports = function(grunt) {
       dist: {
         wrap: true,
         src: ['<%= concat.dist.dest %>'],
-        dest: 'dist/<%= pkg.name %>.min.js'
+        dest: 'dist/jquery.printelement.min.js'
       }
     }
   });

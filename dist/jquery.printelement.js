@@ -1,6 +1,6 @@
-/*! jQuery printElement - v2.0.1 - 2016-02-17
+/*! jQuery printElement - v2.0.1 - 2018-11-16
 * https://github.com/erikzaadi/jQuery.printElement
-* Copyright (c) 2016 erikzaadi; Licensed MIT, GPL */
+* Copyright (c) 2018 erikzaadi; Licensed MIT, GPL */
 /*global window,focus,setTimeout,navigator*/
 (function (window, undefined) {
     var document = window.document;
@@ -40,18 +40,20 @@
         "media": ''
     };
     function _printElement(element, opts) {
-        //Create markup to be printed
+        // create markup to be printed
         var html = _getMarkup(element, opts);
 
         var popupOrIframe = null;
         var documentToWriteTo = null;
         if (opts.printMode.toLowerCase() === 'popup') {
-            popupOrIframe = window.open('about:blank', 'printElementWindow', 'width=650,height=440,scrollbars=yes');
+            // IE duplication name bug: http://stackoverflow.com/questions/7146767/i-get-access-is-denied-when-i-try-to-print-a-page-using-jquery-printelement-js
+            var windowName = 'printElementWindow_' + (Math.round(Math.random() * 99999)).toString();
+            popupOrIframe = window.open('about:blank', windowName, 'width=650,height=440,scrollbars=yes');
             documentToWriteTo = popupOrIframe.document;
         } else {
-            //The random ID is to overcome a safari bug http://www.cjboco.com.sharedcopy.com/post.cfm/442dc92cd1c0ca10a5c35210b8166882.html
+            // The random ID is to overcome a safari bug http://www.cjboco.com.sharedcopy.com/post.cfm/442dc92cd1c0ca10a5c35210b8166882.html
             var printElementID = "printElement_" + (Math.round(Math.random() * 99999)).toString();
-            //Native creation of the element is faster..
+            // Native creation of the element is faster...
             var iframe = document.createElement('IFRAME');
             $(iframe).attr({
                 style: opts.iframeElementOptions.styleToAdd,
@@ -88,11 +90,11 @@
 
     function _getElementHTMLIncludingFormElements(element) {
         var $element = $(element);
-        //Radiobuttons and checkboxes
+        // radiobuttons and checkboxes
         $(":checked", $element).each(function () {
             this.setAttribute('checked', 'checked');
         });
-        //simple text inputs
+        // simple text inputs
         $("input[type='text'],input[type='number']", $element).each(function () {
             this.setAttribute('value', $(this).val());
         });
@@ -105,18 +107,17 @@
             });
         });
         $("textarea", $element).each(function () {
-            //Thanks http://blog.ekini.net/2009/02/24/jquery-getting-the-latest-textvalue-inside-a-textarea/
+            // Thanks http://blog.ekini.net/2009/02/24/jquery-getting-the-latest-textvalue-inside-a-textarea/
             var value = $(this).attr('value');
-            //fix for issue 7 (http://plugins.jquery.com/node/13503 and http://github.com/erikzaadi/jQueryPlugins/issues#issue/7)
+            // fix for issue 7 (http://plugins.jquery.com/node/13503 and http://github.com/erikzaadi/jQueryPlugins/issues#issue/7)
             if (this.firstChild) {
                 this.firstChild.textContent = value;
             } else {
                 this.innerHTML = value;
             }
         });
-        //http://dbj.org/dbj/?p=91
-        var elementHtml = $('<div></div>').append($element.clone()).html();
-        return elementHtml;
+        // http://dbj.org/dbj/?p=91
+        return $('<div></div>').append($element.clone()).html();
     }
 
     function _getBaseHref() {
@@ -149,8 +150,14 @@
                 var media = $(this).attr('media') || '';
                 html.push('<link type="text/css" rel="stylesheet" href="' + $(this).attr("href") + '" media="' + media + '" >');
             });
+
+            $("script", document).filter(function () {
+              return !!$(this).attr("src");
+            }).each(function () {
+                html.push('<script type="text/javascript" src="' + $(this).attr("src") + '" ></script>');
+            });
         }
-        //Ensure that relative links work
+        // ensure that relative links work
         html.push('<base href="' + _getBaseHref() + '" />');
         html.push('</head><body style="' + opts.printBodyOptions.styleToAdd + '" class="' + opts.printBodyOptions.classNameToAdd + '">');
         html.push('<div class="' + $element.attr('class') + '">' + elementHtml + '</div>');
